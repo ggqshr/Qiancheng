@@ -7,6 +7,7 @@
 from pymongo import MongoClient
 from .settings import REDIS_PORT, REDIS_HOST, MODE, MONGODB_HOST, MONGODB_PORT
 import redis as r
+from datetime import datetime
 
 LOCAL = "127.0.0.1"
 
@@ -30,5 +31,5 @@ class QianchengPipeline(object):
 
     def close_spider(self, spider):
         with open("result.log", "a") as f:
-            f.writelines("this time crawl item {} \n".format(self.count))
+            f.writelines("{} crawl item {} \n".format(datetime.now().strftime("%Y.%m.%d"),self.count))
             f.flush()
