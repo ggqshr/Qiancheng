@@ -13,19 +13,19 @@ LOCAL = "127.0.0.1"
 
 class QianchengPipeline(object):
     def __init__(self):
-        # self.client = r.Redis(REDIS_HOST if MODE == 'LOCAL' else LOCAL, port=REDIS_PORT)
-        # self.conn = MongoClient(MONGODB_HOST if MODE == 'LOCAL' else LOCAL, MONGODB_PORT)
-        # if MODE == 'LOCAL':
-        #     self.conn.admin.authenticate("ggqshr", "root")
-        # self.mongo = self.conn.LiePin.LiePin
-        # self.count = 0
+        self.client = r.Redis(REDIS_HOST if MODE == 'LOCAL' else LOCAL, port=REDIS_PORT)
+        self.conn = MongoClient(MONGODB_HOST if MODE == 'LOCAL' else LOCAL, MONGODB_PORT)
+        if MODE == 'LOCAL':
+            self.conn.admin.authenticate("ggqshr", "root")
+        self.mongo = self.conn.QianCheng.QianCheng
+        self.count = 0
         pass
 
     def process_item(self, item, spider):
-        # if self.client.sadd("lie_pin_id_set", item['id']) == 0:
-        #     return item
-        # self.mongo.insert_one(dict(item))
-        # self.count += 1
+        if self.client.sadd("qianchen_id_set", item['id']) == 0:
+            return item
+        self.mongo.insert_one(dict(item))
+        self.count += 1
         return item
 
     def close_spider(self, spider):
