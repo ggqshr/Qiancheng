@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 import random
+from datetime import datetime
 
 import scrapy
 from scrapy import Request, Selector
@@ -40,6 +41,7 @@ class QcwySpider(RedisSpider):
         "Accept-Language": "zh-CN,zh;q=0.9",
     }
     regSpace = re.compile(r'([\s\r\n\t])+')
+    date_year = datetime.now().strftime("%Y-")
 
     def __init__(self, *args, **kwargs):
         # Dynamically define the allowed domains list.
@@ -62,7 +64,7 @@ class QcwySpider(RedisSpider):
             _extract_info = partial(extract_info, signal_item)
             item = QianchengItem()
             item['link'] = _extract_info("./p/span/a/@href")[0]
-            item['post_time'] = _extract_info('./span[@class="t5"]/text()')[0]
+            item['post_time'] = self.date_year+_extract_info('./span[@class="t5"]/text()')[0]
             item['job_name'] = self.replace_all_n(_extract_info('./p/span/a/text()')[0])
             item['salary'] = _extract_info('./span[@class="t4"]/text()')
             item['place'] = _extract_info('./span[@class="t3"]/text()')
