@@ -66,7 +66,7 @@ DOWNLOAD_DELAY = 0
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'Qiancheng.pipelines.QianchengPipeline': 300,
-    'scrapy_redis.pipelines.RedisPipeline': 400,
+    #'scrapy_redis.pipelines.RedisPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -92,7 +92,7 @@ ITEM_PIPELINES = {
 
 LOG_LEVEL = INFO
 
-REDIS_HOST = "116.56.140.202"
+REDIS_HOST = "127.0.0.1"
 REDIS_PORT = 6379
 
 MONGODB_HOST = "116.56.140.202"

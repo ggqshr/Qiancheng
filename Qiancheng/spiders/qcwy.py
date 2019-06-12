@@ -56,7 +56,8 @@ class QcwySpider(RedisSpider):
                 yield Request(
                     url=url.format(page=str(i)),
                     headers=self.COMMON_HEADER,
-                    callback=self.parse_item
+                    callback=self.parse_item,
+					dont_filter=True
                 )
 
     def parse_item(self, response):
