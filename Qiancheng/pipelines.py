@@ -20,16 +20,18 @@ class QianchengPipeline(object):
             self.conn.admin.authenticate("ggqshr", "root")
         self.mongo = self.conn.QianCheng.QianCheng
         self.count = 0
+        self.fcount = 0
         pass
 
     def process_item(self, item, spider):
+        self.count += 1
         if self.client.sadd("qianchen_id_set", item['id']) == 0:
             return item
         self.mongo.insert_one(dict(item))
-        self.count += 1
+        self.fcount += 1
         return item
 
     def close_spider(self, spider):
         with open("result.log", "a") as f:
-            f.writelines("{} crawl item {} \n".format(datetime.now().strftime("%Y.%m.%d"),self.count))
+            f.writelines("{} crawl item {} {}\n".format(datetime.now().strftime("%Y.%m.%d"),self.count,self.fcount))
             f.flush()
