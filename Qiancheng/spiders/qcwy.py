@@ -19,10 +19,9 @@ def extract_info(response, xp):
     return response.xpath(xp).extract()
 
 
-class QcwySpider(RedisSpider):
+class QcwySpider(scrapy.Spider):
     name = 'qcwy'
     # allowed_domains = ['51job.com']
-    redis_key = 'qcwy:start_url'
     BASE_URL = "https://search.51job.com/list/{city},000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare="
     COMMON_HEADER = {
         "User-Agent": random.choice(USER_AGENT_POOL),

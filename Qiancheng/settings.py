@@ -123,9 +123,9 @@ USER_AGENT_POOL = [
 ]
 
 # # 换用scrapy-redis的去重器
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
-# # 换用scrapy-redis的调度器
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+# DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+# # # 换用scrapy-redis的调度器
+# SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 
 with open("city_data.data", 'rb') as f:
     city_list_id_dict = pickle.load(f)
