@@ -9,6 +9,7 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 from logging import INFO
+import pickle
 
 BOT_NAME = 'Qiancheng'
 
@@ -66,7 +67,7 @@ DOWNLOAD_DELAY = 0
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'Qiancheng.pipelines.QianchengPipeline': 300,
-    #'scrapy_redis.pipelines.RedisPipeline': 400,
+    # 'scrapy_redis.pipelines.RedisPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -92,7 +93,7 @@ ITEM_PIPELINES = {
 
 LOG_LEVEL = INFO
 
-REDIS_HOST = "127.0.0.1"
+REDIS_HOST = "116.56.140.202"
 REDIS_PORT = 6379
 
 MONGODB_HOST = "116.56.140.202"
@@ -122,6 +123,9 @@ USER_AGENT_POOL = [
 ]
 
 # # 换用scrapy-redis的去重器
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
-# # 换用scrapy-redis的调度器
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+# DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+# # # 换用scrapy-redis的调度器
+# SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+
+with open("city_data.data", 'rb') as f:
+    city_list_id_dict = pickle.load(f)

@@ -12,28 +12,17 @@ from functools import partial
 import re
 from Qiancheng.settings import USER_AGENT_POOL
 from scrapy_redis.spiders import RedisSpider
+from Qiancheng.settings import city_list_id_dict
 
 
 def extract_info(response, xp):
     return response.xpath(xp).extract()
 
 
-class QcwySpider(RedisSpider):
+class QcwySpider(scrapy.Spider):
     name = 'qcwy'
     # allowed_domains = ['51job.com']
-    redis_key = 'qcwy:start_url'
-    BASE_URL = [
-        "https://search.51job.com/list/030200%252C020000%252C010000%252C040000%252C180200,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=",
-        'https://search.51job.com/list/180200%252C200200%252C080200%252C070200%252C090200,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/060000%252C030800%252C230300%252C230200%252C070300,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/250200%252C190200%252C150200%252C080300%252C170200,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/050000%252C120300%252C120200%252C220200%252C240200,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/110200,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=01&from=&welfare=',
-        'https://search.51job.com/list/030000%252C070000%252C080000%252C090000%252C100000,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/110000%252C120000%252C130000%252C140000%252C150000,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/160000%252C170000%252C180000%252C190000%252C200000,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/210000%252C220000%252C230000%252C240000%252C250000,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=',
-        'https://search.51job.com/list/260000%252C270000%252C280000%252C290000%252C300000,000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare=', ]
+    BASE_URL = "https://search.51job.com/list/{city},000000,0000,00,0,99,%2B,2,{page}.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=5&dibiaoid=0&address=&line=&specialarea=00&from=&welfare="
     COMMON_HEADER = {
         "User-Agent": random.choice(USER_AGENT_POOL),
         "Referer": "https://www.51job.com/",
@@ -51,13 +40,14 @@ class QcwySpider(RedisSpider):
         super(QcwySpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
-        for url in self.BASE_URL:
-            for i in range(1, 2000):
+        city_id_list = set(city_list_id_dict.values())
+        for city in city_list_id_dict:
+            for page in range(1, 2000):
                 yield Request(
-                    url=url.format(page=str(i)),
+                    url=self.BASE_URL.format(page=str(page), city=str(city)),
                     headers=self.COMMON_HEADER,
                     callback=self.parse_item,
-					dont_filter=True
+                    dont_filter=True
                 )
 
     def parse_item(self, response):
@@ -65,7 +55,7 @@ class QcwySpider(RedisSpider):
             _extract_info = partial(extract_info, signal_item)
             item = QianchengItem()
             item['link'] = _extract_info("./p/span/a/@href")[0]
-            item['post_time'] = self.date_year+_extract_info('./span[@class="t5"]/text()')[0]
+            item['post_time'] = self.date_year + _extract_info('./span[@class="t5"]/text()')[0]
             item['job_name'] = self.replace_all_n(_extract_info('./p/span/a/text()')[0])
             item['salary'] = _extract_info('./span[@class="t4"]/text()')
             item['place'] = _extract_info('./span[@class="t3"]/text()')
