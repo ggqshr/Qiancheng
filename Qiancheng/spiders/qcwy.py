@@ -42,13 +42,29 @@ class QcwySpider(scrapy.Spider):
     def start_requests(self):
         city_id_list = set(city_list_id_dict.values())
         for city in city_list_id_dict:
-            for page in range(1, 2000):
-                yield Request(
-                    url=self.BASE_URL.format(page=str(page), city=str(city)),
-                    headers=self.COMMON_HEADER,
-                    callback=self.parse_item,
-                    dont_filter=True
-                )
+            yield Request(
+                url=self.BASE_URL.format(page=str(1), city=str(city)),
+                headers=self.COMMON_HEADER,
+                callback=self.loop_on_page,
+                dont_filter=True,
+                meta={"city": city}
+            )
+
+    def loop_on_page(self, response):
+        """
+        根据页数循环
+        :param response:
+        :return:
+        """
+        this_city = response.meta['city']
+        all_pages = response.xpath("//div[@class='rt']")[1].xpath("string(.)").extract()[0].strip().split('/')[1]
+        for page in range(1, int(all_pages) + 1):
+            yield Request(
+                url=self.BASE_URL.format(page=str(page), city=this_city),
+                headers=self.COMMON_HEADER,
+                callback=self.parse_item,
+                dont_filter=True
+            )
 
     def parse_item(self, response):
         for signal_item in response.xpath('//div[@class="el"]')[4:]:  # type:Selector
