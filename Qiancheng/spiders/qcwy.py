@@ -41,7 +41,7 @@ class QcwySpider(scrapy.Spider):
 
     def start_requests(self):
         city_id_list = set(city_list_id_dict.values())
-        for city in city_list_id_dict:
+        for city in city_id_list:
             yield Request(
                 url=self.BASE_URL.format(page=str(1), city=str(city)),
                 headers=self.COMMON_HEADER,
@@ -63,7 +63,8 @@ class QcwySpider(scrapy.Spider):
                 url=self.BASE_URL.format(page=str(page), city=this_city),
                 headers=self.COMMON_HEADER,
                 callback=self.parse_item,
-                dont_filter=True
+                dont_filter=True,
+                priority=3,
             )
 
     def parse_item(self, response):
@@ -82,7 +83,8 @@ class QcwySpider(scrapy.Spider):
                 url=item['link'],
                 headers=self.COMMON_HEADER,
                 callback=self.parse_other,
-                meta={"item": item}
+                meta={"item": item},
+                priority=3,
             )
 
     def parse_other(self, response: HtmlResponse):

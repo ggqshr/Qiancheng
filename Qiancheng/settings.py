@@ -99,7 +99,7 @@ REDIS_PORT = 6379
 MONGODB_HOST = "116.56.140.202"
 MONGODB_PORT = 27017
 
-MODE = "YAO"  # or YAO
+MODE = "LOCAL"  # or YAO
 
 USER_AGENT_POOL = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
