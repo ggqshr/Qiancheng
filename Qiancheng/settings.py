@@ -129,3 +129,6 @@ USER_AGENT_POOL = [
 
 with open("city_data.data", 'rb') as f:
     city_list_id_dict = pickle.load(f)
+
+MONGODB_USER = "jason#619"
+MONGODB_PASSWORD = "jason#619"

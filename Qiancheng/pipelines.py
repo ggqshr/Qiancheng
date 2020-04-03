@@ -5,7 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from pymongo import MongoClient
-from .settings import REDIS_PORT, REDIS_HOST, MODE, MONGODB_HOST, MONGODB_PORT
+from .settings import REDIS_PORT, REDIS_HOST, MODE, MONGODB_HOST, MONGODB_PORT, MONGODB_USER, MONGODB_PASSWORD
 import redis as r
 from datetime import datetime
 
@@ -16,6 +16,7 @@ class QianchengPipeline(object):
     def __init__(self):
         self.client = r.Redis(REDIS_HOST if MODE == 'LOCAL' else LOCAL, port=REDIS_PORT)
         self.conn = MongoClient(MONGODB_HOST if MODE == 'LOCAL' else LOCAL, MONGODB_PORT)
+        self.conn.admin.authenticate(MONGODB_USER, MONGODB_PASSWORD)
         self.mongo = self.conn.QianCheng.QianCheng
         self.count = 0
         self.fcount = 0
