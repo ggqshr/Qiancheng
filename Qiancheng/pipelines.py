@@ -14,8 +14,8 @@ LOCAL = "127.0.0.1"
 
 class QianchengPipeline(object):
     def __init__(self):
-        self.client = r.Redis(REDIS_HOST if MODE == 'LOCAL' else LOCAL, port=REDIS_PORT)
-        self.conn = MongoClient(MONGODB_HOST if MODE == 'LOCAL' else LOCAL, MONGODB_PORT)
+        self.client = r.Redis(REDIS_HOST if MODE == 'LOCAL' else LOCAL, port=REDIS_PORT, port=REDIS_PORT)
+        self.conn = MongoClient(MONGODB_HOST if MODE == 'LOCAL' else LOCAL, MONGODB_PORT, MONGODB_PORT)
         self.conn.admin.authenticate(MONGODB_USER, MONGODB_PASSWORD)
         self.mongo = self.conn.QianCheng.QianCheng
         self.count = 0
