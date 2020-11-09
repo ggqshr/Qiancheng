@@ -10,6 +10,11 @@
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 from logging import INFO
 import pickle
+from scrapy.utils.log import configure_logging
+from logging.config import dictConfig, fileConfig
+import os
+import logging
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 
 BOT_NAME = 'Qiancheng'
 
@@ -93,11 +98,11 @@ ITEM_PIPELINES = {
 
 LOG_LEVEL = INFO
 
-REDIS_HOST = "116.56.140.202"
-REDIS_PORT = 6379
+REDIS_HOST = "47.94.45.55"
+REDIS_PORT = 9879
 
-MONGODB_HOST = "116.56.140.202"
-MONGODB_PORT = 27017
+MONGODB_HOST = "47.94.45.55"
+MONGODB_PORT = 9878
 
 MODE = "YAO"  # or YAO
 
@@ -132,3 +137,16 @@ with open("city_data.data", 'rb') as f:
 
 MONGODB_USER = "jason#619"
 MONGODB_PASSWORD = "jason#619"
+
+
+if not os.path.exists("./logs"):
+    os.mkdir('./logs')
+
+configure_logging(install_root_handler=False)
+logging.basicConfig(
+    level=logging.DEBUG,
+    handlers=[
+        TimedRotatingFileHandler(filename='logs/LiePin.log', encoding='utf-8', when="D", interval=1)],
+    format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
+    datefmt='%a, %d %b %Y %H:%M:%S',
+)

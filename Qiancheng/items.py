@@ -6,7 +6,8 @@
 # https://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
-
+from itemloaders import ItemLoader
+from itemloaders.processors import TakeFirst,MapCompose,Compose,SelectJmes,Identity
 
 class QianchengItem(scrapy.Item):
     # define the fields for your item here like:
@@ -29,3 +30,19 @@ class QianchengItem(scrapy.Item):
     company_address = scrapy.Field()  # //*[text()='联系方式']/parent::*/parent::*//p/text() 可能没有
     job_content = scrapy.Field()  # //*[text()='职位信息']/parent::*/parent::*/div//p//text() 到职能类别之前的信息
     job_kind = scrapy.Field()  # //*[text()='职位信息']/parent::*/parent::*/div//p//text() 职能类别之后的信息
+
+class QianchengItemLoader(ItemLoader):
+    default_output_processor = TakeFirst()
+
+    link_in = MapCompose(SelectJmes("job_href"))
+    post_time_in = MapCompose(SelectJmes("issuedate"),lambda x:x.split(" ")[0])
+    job_name_in = MapCompose(SelectJmes("job_name"))
+    salary_in = MapCompose(SelectJmes("providesalary_text"))
+    place_in = MapCompose(SelectJmes("workarea_text"))
+    company_name_in = MapCompose(SelectJmes("company_name"))
+    experience_in = MapCompose(lambda x:x.strip())
+    education_in = MapCompose(lambda x:x.strip())
+    job_number_in = MapCompose(lambda x:x.strip())
+
+
+    advantage_out = Identity()

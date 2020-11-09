@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import base64
 import random
+import re
 from datetime import datetime
+from functools import partial
+import json
 
 import scrapy
+from itemloaders.processors import Compose, Join, MapCompose, SelectJmes, TakeFirst
+from Qiancheng import QianchengItem, QianchengItemLoader
+from Qiancheng.settings import USER_AGENT_POOL, city_list_id_dict
 from scrapy import Request, Selector
 from scrapy.http import HtmlResponse
-
-from Qiancheng import QianchengItem
-from functools import partial
-import re
-from Qiancheng.settings import USER_AGENT_POOL
 from scrapy_redis.spiders import RedisSpider
-from Qiancheng.settings import city_list_id_dict
 
 
 def extract_info(response, xp):
@@ -57,7 +57,9 @@ class QcwySpider(scrapy.Spider):
         :return:
         """
         this_city = response.meta['city']
-        all_pages = response.xpath("//div[@class='rt']")[1].xpath("string(.)").extract()[0].strip().split('/')[1]
+        loader = QianchengItemLoader()
+        info = json.loads(loader.get_value(response.text,TakeFirst(),re='window.__SEARCH_RESULT__\s*=\s*(.*?)\<\/script\>'))
+        all_pages = info['total_page']
         for page in range(1, int(all_pages) + 1):
             yield Request(
                 url=self.BASE_URL.format(page=str(page), city=this_city),
@@ -68,17 +70,26 @@ class QcwySpider(scrapy.Spider):
             )
 
     def parse_item(self, response):
-        for signal_item in response.xpath('//div[@class="el"]')[4:]:  # type:Selector
-            _extract_info = partial(extract_info, signal_item)
-            item = QianchengItem()
-            item['link'] = _extract_info("./p/span/a/@href")[0]
-            item['post_time'] = self.date_year + _extract_info('./span[@class="t5"]/text()')[0]
-            item['job_name'] = self.replace_all_n(_extract_info('./p/span/a/text()')[0])
-            item['salary'] = _extract_info('./span[@class="t4"]/text()')
-            item['place'] = _extract_info('./span[@class="t3"]/text()')
-            item['company_name'] = _extract_info('./span[@class="t2"]/a/text()')[0]
-            item['id'] = base64.b32encode((item['job_name'] + item['company_name']).encode("utf-8")).decode("utf-8")
+        loader = QianchengItemLoader()
+        infos = json.loads(loader.get_value(response.text,TakeFirst(),re='window.__SEARCH_RESULT__\s*=\s*(.*?)\<\/script\>'))
+        all_position = infos['engine_search_result']
+        for position in all_position:  # type:Selector
+            this_loader = QianchengItemLoader(QianchengItem())
+            this_loader.add_value(
+                None,
+                {
+                    "link":position,
+                    "post_time":position,
+                    "job_name":position,
+                    "salary":position,
+                    "place":position,
+                    "company_name":position,
+                }
+            )
+            this_id = base64.b32encode((this_loader.get_output_value('job_name') + this_loader.get_output_value('company_name')).encode("utf-8")).decode("utf-8")
+            this_loader.add_value("id",this_id)
             self.COMMON_HEADER['Referer'] = response.url
+            item = this_loader.load_item()
             yield Request(
                 url=item['link'],
                 headers=self.COMMON_HEADER,
@@ -89,25 +100,29 @@ class QcwySpider(scrapy.Spider):
 
     def parse_other(self, response: HtmlResponse):
         item = response.meta['item']
+        loader = QianchengItemLoader(item,response)
         _extract_info = partial(extract_info, response)
         info_text = _extract_info("//p[@class='msg ltype']/@title")[0].split("|") if len(
             _extract_info("//p[@class='msg ltype']/@title")) != 0 else ["空"] * 5
-        item['experience'] = info_text[1]
-        item['education'] = info_text[2] if len(info_text) == 5 else "空"
-        item['job_number'] = info_text[3] if len(info_text) == 5 else info_text[2]
-        item['advantage'] = _extract_info('//div[@class="jtag"]/div//span/text()')
+        loader.add_value("experience",info_text[1])
+        loader.add_value("education",info_text[2] if len(info_text) == 5 else "空")
+        loader.add_value("job_number",info_text[3] if len(info_text) == 5 else info_text[2])
+        loader.add_xpath("advantage",'//div[@class="jtag"]/div//span/text()',processors=Compose(Join()))
+
         info = _extract_info("//div[@class='com_tag']/p/@title")
-        item['company_nature'] = info[0] if len(info) != 0 else "空"
-        item['company_size'] = info[1] if len(info) != 0 else "空"
-        item['company_industry'] = info[2] if len(info) != 0 else "空"
-        item['company_address'] = self.replace_all_n(
-            "".join(_extract_info(u"//*[text()='联系方式']/parent::*/parent::*//p/text()")))
+
+        loader.add_value("company_nature",info[0] if len(info) != 0 else "空")
+        loader.add_value("company_size",info[1] if len(info) != 0 else "空")
+        loader.add_value("company_industry",info[2] if len(info) != 0 else "空")
+        loader.add_xpath("company_address","//*[text()='联系方式']/parent::*/parent::*//p/text()",processors=Compose(Join(""),self.replace_all_n))
+
         info2 = self.replace_all_n(
             "".join(_extract_info(u"//*[text()='职位信息']/parent::*/parent::*/div//p//text()")))
         loc_div = info2.find(u"职能类别")
-        item['job_content'] = info2[:loc_div]
-        item['job_kind'] = info2[loc_div:]
-        yield item
+
+        loader.add_value("job_content",info2[:loc_div])
+        loader.add_value("job_kind",info2[loc_div:])
+        yield loader.load_item()
 
     def replace_all_n(self, text):
         # 以防止提取不到
