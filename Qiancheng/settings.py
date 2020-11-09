@@ -146,7 +146,7 @@ configure_logging(install_root_handler=False)
 logging.basicConfig(
     level=logging.DEBUG,
     handlers=[
-        TimedRotatingFileHandler(filename='logs/LiePin.log', encoding='utf-8', when="D", interval=1)],
+        TimedRotatingFileHandler(filename='logs/Qiancheng.log', encoding='utf-8', when="D", interval=1)],
     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
     datefmt='%a, %d %b %Y %H:%M:%S',
 )
