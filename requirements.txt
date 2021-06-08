@@ -3,3 +3,4 @@ itemloaders
 redis
 scrapy_redis
 scrapy
+redisbloom
