@@ -12,7 +12,6 @@ from Qiancheng import QianchengItem, QianchengItemLoader
 from Qiancheng.settings import USER_AGENT_POOL, city_list_id_dict
 from scrapy import Request, Selector
 from scrapy.http import HtmlResponse
-from scrapy_redis.spiders import RedisSpider
 
 
 def extract_info(response, xp):
@@ -72,7 +71,7 @@ class QcwySpider(scrapy.Spider):
     def parse_item(self, response):
         loader = QianchengItemLoader()
         infos = json.loads(loader.get_value(response.text,TakeFirst(),re='window.__SEARCH_RESULT__\s*=\s*(.*?)\<\/script\>'))
-        all_position = infos['engine_search_result']
+        all_position = infos['engine_jds']
         for position in all_position:  # type:Selector
             this_loader = QianchengItemLoader(QianchengItem())
             this_loader.add_value(
