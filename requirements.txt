@@ -4,3 +4,4 @@ redis
 scrapy_redis
 scrapy
 redisbloom
+scrapy_splash
