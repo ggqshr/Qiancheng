@@ -9,10 +9,11 @@ import json
 import scrapy
 from itemloaders.processors import Compose, Join, MapCompose, SelectJmes, TakeFirst
 from Qiancheng import QianchengItem, QianchengItemLoader
-from Qiancheng.settings import USER_AGENT_POOL, city_list_id_dict
+from Qiancheng.settings import USER_AGENT_POOL, city_list_id_dict, splash_urls
 from scrapy import Request, Selector
 from scrapy.http import HtmlResponse
-
+from copy import deepcopy
+from scrapy_splash import SplashRequest
 
 def extract_info(response, xp):
     return response.xpath(xp).extract()
@@ -25,7 +26,7 @@ class QcwySpider(scrapy.Spider):
     COMMON_HEADER = {
         "User-Agent": random.choice(USER_AGENT_POOL),
         "Referer": "https://www.51job.com/",
-        "Accept-Encoding": "gzip, deflate, br",
+        # "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "zh-CN,zh;q=0.9",
     }
     regSpace = re.compile(r'([\s\r\n\t])+')
@@ -87,14 +88,28 @@ class QcwySpider(scrapy.Spider):
             )
             this_id = base64.b32encode((this_loader.get_output_value('job_name') + this_loader.get_output_value('company_name')).encode("utf-8")).decode("utf-8")
             this_loader.add_value("id",this_id)
-            self.COMMON_HEADER['Referer'] = response.url
+            this_header = deepcopy(self.COMMON_HEADER)
+            this_header['Referer'] = response.url
             item = this_loader.load_item()
-            yield Request(
-                url=item['link'],
-                headers=self.COMMON_HEADER,
+            temp_link = item['link']
+            if "jobs.51job.com"  in item['link']:
+                temp_link = item['link'].replace("jobs.51job.com","119.188.115.24")
+            yield SplashRequest(
+                url=temp_link,
+                headers=this_header,
                 callback=self.parse_other,
                 meta={"item": item},
                 priority=3,
+                endpoint='render.json',
+                args={
+                    'wait': 5,
+                    "headers":this_header,
+                    "images":0,
+                    "url":temp_link,
+                    "html":1,
+                },
+                dont_filter=True,
+                splash_url=random.choice(splash_urls)
             )
 
     def parse_other(self, response: HtmlResponse):
