@@ -102,7 +102,6 @@ class QcwySpider(scrapy.Spider):
                 priority=3,
                 endpoint='render.json',
                 args={
-                    'wait': 5,
                     "headers":this_header,
                     "images":0,
                     "url":temp_link,
