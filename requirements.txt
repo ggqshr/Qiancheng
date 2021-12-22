@@ -1,7 +1,11 @@
-pymongo
+pymongo==3.9
 itemloaders
 redis
 scrapy_redis
 scrapy
 redisbloom
 scrapy_splash
+proxy_pool_redis
+requests
+pyyaml
+dataclasses

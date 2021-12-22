@@ -15,6 +15,7 @@ from logging.config import dictConfig, fileConfig
 import os
 import logging
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+from proxy_pool_redis import XunProxyPool
 
 BOT_NAME = 'Qiancheng'
 
@@ -64,6 +65,7 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,
     'scrapy_splash.SplashMiddleware': 725,
     'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+    "Qiancheng.middlewares.ProxyMiddleware": 843
 }
 
 # Enable or disable extensions
@@ -102,10 +104,10 @@ ITEM_PIPELINES = {
 
 LOG_LEVEL = INFO
 
-REDIS_HOST = "redis"
+REDIS_HOST = "120.24.187.37"
 REDIS_PORT = 6379
 
-MONGODB_HOST = "gateway"
+MONGODB_HOST = "120.24.187.37"
 MONGODB_PORT = 10021
 
 MODE = "YAO"  # or YAO
@@ -156,4 +158,9 @@ logging.basicConfig(
 )
 
 # DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
-splash_urls = ["http://gateway:10032","http://gateway:10031","http://splash:8050"]
+splash_urls = ["http://120.24.187.37:8050"]
+
+RETRY_ENABLED = False
+REDIRECT_ENABLED = False
+apiUrl = "http://api.xdaili.cn/xdaili-api/greatRecharge/getGreatIp?spiderId=2eeedc14918546f087abcddafd5ee37d&orderno=YZ20196121637TQppQw&returnType=2&count=3"
+ip_pool = XunProxyPool(api_url=apiUrl,name='liepin',redis_host=REDIS_HOST,redis_port=REDIS_PORT,redis_password="b7310",scan_timeout_ip=True,log_level=logging.INFO)
