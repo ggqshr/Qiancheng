@@ -42,12 +42,21 @@ class QcwySpider(scrapy.Spider):
     def start_requests(self):
         city_id_list = set(city_list_id_dict.values())
         for city in city_id_list:
-            yield Request(
+             yield SplashRequest(
                 url=self.BASE_URL.format(page=str(1), city=str(city)),
                 headers=self.COMMON_HEADER,
                 callback=self.loop_on_page,
+                endpoint='render.json',
+                meta={"city": city},
+                args={
+                    'wait': 0.5,
+                    "headers":self.COMMON_HEADER,
+                    "images":0,
+                    "url":self.BASE_URL.format(page=str(1), city=str(city)),
+                    "html":1,
+                },
                 dont_filter=True,
-                meta={"city": city}
+                splash_url=random.choice(splash_urls)
             )
 
     def loop_on_page(self, response):
@@ -62,11 +71,20 @@ class QcwySpider(scrapy.Spider):
         info = json.loads(loader.get_value(response.text,TakeFirst(),re='window.__SEARCH_RESULT__\s*=\s*(.*?)\<\/script\>'))
         all_pages = info['total_page']
         for page in range(1, int(all_pages) + 1):
-            yield Request(
+            yield SplashRequest(
                 url=self.BASE_URL.format(page=str(page), city=this_city),
                 headers=self.COMMON_HEADER,
                 callback=self.parse_item,
+                endpoint='render.json',
+                args={
+                    'wait': 0.5,
+                    "headers":self.COMMON_HEADER,
+                    "images":0,
+                    "url":self.BASE_URL.format(page=str(page), city=this_city),
+                    "html":1,
+                },
                 dont_filter=True,
+                splash_url=random.choice(splash_urls),
                 priority=3,
             )
 
