@@ -6,8 +6,6 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-from scrapy.http import Response
-from .settings import ip_pool
 
 
 class QianchengSpiderMiddleware(object):
@@ -103,22 +101,3 @@ class QianchengDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
-
-
-class ProxyMiddleware(object):
-
-    def __init__(self, ip_pool) -> None:
-        self.ip_pool = ip_pool
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
-        s = cls(ip_pool)
-        return s
-
-    def process_request(self, request, spider):
-        request.meta['splash']['args']['proxy'] = "http://" + \
-            self.ip_pool.get_ip()
-
-    def process_response(self, request, response: Response, spider):
-        return response
