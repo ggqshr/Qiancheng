@@ -67,7 +67,6 @@ class QcwySpider(scrapy.Spider):
         """
         this_city = response.meta['city']
         loader = QianchengItemLoader()
-        print(response.text)
         info = json.loads(loader.get_value(response.text,TakeFirst(),re='window.__SEARCH_RESULT__\s*=\s*(.*?)\<\/script\>'))
         all_pages = info['total_page']
         for page in range(1, int(all_pages) + 1):
