@@ -49,7 +49,7 @@ class QcwySpider(scrapy.Spider):
                 endpoint='render.json',
                 meta={"city": city},
                 args={
-                    'wait': random.randint(0,10),
+                    'wait': random.randint(0,3),
                     "headers":self.COMMON_HEADER,
                     "images":0,
                     "url":self.BASE_URL.format(page=str(1), city=str(city)),
@@ -76,7 +76,7 @@ class QcwySpider(scrapy.Spider):
                 callback=self.parse_item,
                 endpoint='render.json',
                 args={
-                    'wait': random.randint(0,10),
+                    'wait': random.randint(0,3),
                     "headers":self.COMMON_HEADER,
                     "images":0,
                     "url":self.BASE_URL.format(page=str(page), city=this_city),
